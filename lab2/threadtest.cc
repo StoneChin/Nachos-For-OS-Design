@@ -43,9 +43,16 @@ ThreadTest()
 {
     DEBUG('t', "Entering SimpleTest");
 
-    Thread *t = new Thread("forked thread");
+    // Thread *t = new Thread("forked thread");
+    Thread *t = new Thread("1");      //根据重新定义的thread函数，规定线程1优先级默认为6
+    Thread *t2 = new Thread("2",1);     //线程2的优先级为1
+    Thread *t3 = new Thread("3",3);     //thread3 priority is 3
+
 
     t->Fork(SimpleThread, 1);
-    SimpleThread(0);
+    t2->Fork(SimpleThread, 2);
+    t3->Fork(SimpleThread, 3);
+
+    // SimpleThread(0);
 }
 

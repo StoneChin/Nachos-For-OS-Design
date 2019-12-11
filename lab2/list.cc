@@ -57,7 +57,11 @@ List::List()
 
 List::~List()
 { 
-    while (Remove() != NULL)
+    //>>>>>>>>>>>>>>1
+    // while (Remove() != NULL)
+    int p;
+    while (SortedRemove(&p) != NULL)
+    //>>>>>>>>>>>>>>2
 	;	 // delete all the list elements
 }
 
@@ -72,32 +76,32 @@ List::~List()
 //	"item" is the thing to put on the list, it can be a pointer to 
 //		anything.
 //----------------------------------------------------------------------
-
+//>>>>>>>>>>>>>>>1
 void
 List::Append(void *item)
 {
-    ListElement *element = new ListElement(item, 0);
+   ListElement *element = new ListElement(item, 0);
 
-    if (IsEmpty()) {		// list is empty
+   if (IsEmpty()) {		// list is empty
 	first = element;
 	last = element;
-    } else {			// else put it after last
+   } else {			// else put it after last
 	last->next = element;
 	last = element;
-    }
+   }
 }
-
+//>>>>>>>>>>>>>>2
 //----------------------------------------------------------------------
 // List::Prepend
 //      Put an "item" on the front of the list.
-//      
-//	Allocate a ListElement to keep track of the item.
+     
+// 	Allocate a ListElement to keep track of the item.
 //      If the list is empty, then this will be the only element.
-//	Otherwise, put it at the beginning.
-//
-//	"item" is the thing to put on the list, it can be a pointer to 
-//		anything.
-//----------------------------------------------------------------------
+// 	Otherwise, put it at the beginning.
+
+// 	"item" is the thing to put on the list, it can be a pointer to 
+// 		anything.
+// ----------------------------------------------------------------------
 
 void
 List::Prepend(void *item)
@@ -121,11 +125,13 @@ List::Prepend(void *item)
 //	Pointer to removed item, NULL if nothing on the list.
 //----------------------------------------------------------------------
 
+//>>>>>>>>>>>>>>1
 void *
 List::Remove()
 {
     return SortedRemove(NULL);  // Same as SortedRemove, but ignore the key
 }
+//>>>>>>>>>>>>>>2
 
 //----------------------------------------------------------------------
 // List::Mapcar

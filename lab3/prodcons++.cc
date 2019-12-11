@@ -14,6 +14,10 @@
 #include <stdio.h>
 #include "copyright.h"
 #include "system.h"
+//>>>>>>>>>>>>>>>>>
+#include <unistd.h>
+#include <fcntl.h>
+//>>>>>>>>>>>>>>>>>
 
 #include "synch.h"
 #include "ring.h"
@@ -68,15 +72,21 @@ Producer(_int which)
     for (num = 0; num < N_MESSG ; num++) {
       // Put the code to prepare the message here.
       // ...
+      message->thread_id=which;   //id of producer
+      message->value=num;         //number of message
+
+      nempty->P();                //信号量nempty进行P操作
+      mutex->P();                 //互斥加锁
 
       // Put the code for synchronization before  ring->Put(message) here.
       // ...
 
-      ring->Put(message);
+      ring->Put(message);          //加入buffer（这里就是ring）
 
       // Put the code for synchronization after  ring->Put(message) here.
       // ...
-
+      mutex->V();                 //互斥解锁
+      nfull->V();                 //信号量nfull进行V操作
     }
 }
 
@@ -104,20 +114,23 @@ Consumer(_int which)
     // create a file. Note that this is a UNIX system call.
     if ( (fd = creat(fname, 0600) ) == -1) 
     {
-	perror("creat: file create failed");
-	exit(1);
+      perror("creat: file create failed");
+      Exit(1);
     }
     
     for (; ; ) {
 
       // Put the code for synchronization before ring->Get(message) here.
       // ...
+      nfull->P();
+      mutex->P();
 
       ring->Get(message);
 
       // Put the code for synchronization after ring->Get(message) here.
       // ...
-
+      mutex->V();
+      nempty->V();
 
       // form a string to record the message
       sprintf(str,"producer id --> %d; Message number --> %d;\n", 
@@ -127,7 +140,7 @@ Consumer(_int which)
       // note that this is another UNIX system call.
       if ( write(fd, str, strlen(str)) == -1 ) {
 	    perror("write: write failed");
-	    exit(1);
+	    Exit(1);
 	  }
     }
 }
@@ -148,10 +161,14 @@ ProdCons()
 
     // Put the code to construct all the semaphores here.
     // ....
+    mutex = new Semaphore("mutex",1); //mutex初始化
+    nfull = new Semaphore("full",0);  //nfull初始化
+    nempty = new Semaphore("empty",BUFF_SIZE);  //nempty初始化
 
     // Put the code to construct a ring buffer object with size 
     //BUFF_SIZE here.
     // ...    
+    ring=new Ring(BUFF_SIZE); //按要求建立buffer-ring
 
 
     // create and fork N_PROD of producer threads 
@@ -165,7 +182,8 @@ ProdCons()
       //     the name in prod_names[i] and 
       //     integer i as the argument of function "Producer"
       //  ...
-
+      producers[i] = new Thread(prod_names[i]); //按上面要求创建生产者线程
+      producers[i]->Fork(Producer,i);
     };
 
     // create and fork N_CONS of consumer threads 
@@ -178,7 +196,8 @@ ProdCons()
       //     the name in cons_names[i] and 
       //     integer i as the argument of function "Consumer"
       //  ...
-
+      consumers[i] = new Thread(cons_names[i]);
+      consumers[i]->Fork(Consumer,i);
     };
 }
 

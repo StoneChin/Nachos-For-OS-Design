@@ -67,8 +67,10 @@ Semaphore::P()
     IntStatus oldLevel = interrupt->SetLevel(IntOff);	// disable interrupts
     
     while (value == 0) { 			// semaphore not available
+    //>>>>>>>>>>>>>>>1
 	queue->Append((void *)currentThread);	// so go to sleep
-	currentThread->Sleep();
+    //>>>>>>>>>>>>>>>2
+    currentThread->Sleep();
     } 
     value--; 					// semaphore available, 
 						// consume its value
@@ -90,7 +92,9 @@ Semaphore::V()
     Thread *thread;
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
 
+    //>>>>>>>>>>>>>>>
     thread = (Thread *)queue->Remove();
+    //>>>>>>>>>>>>>>>
     if (thread != NULL)	   // make thread ready, consuming the V immediately
 	scheduler->ReadyToRun(thread);
     value++;
@@ -212,7 +216,9 @@ void Condition::Wait(Lock* conditionLock)
 	lock = conditionLock;  // helps to enforce pre-condition
     } 
     ASSERT(lock == conditionLock); // another pre-condition
+    //>>>>>>>>>>>>>>>>1
     queue->Append(currentThread);  // add this thread to the waiting list
+    //>>>>>>>>>>>>>>>>2
     conditionLock->Release();      // release the lock
     currentThread->Sleep();        // goto sleep
     conditionLock->Acquire();      // awaken: re-acquire the lock
@@ -234,8 +240,10 @@ void Condition::Signal(Lock* conditionLock)
     ASSERT(conditionLock->isHeldByCurrentThread());
     if(!queue->IsEmpty()) {
 	ASSERT(lock == conditionLock);
+    //>>>>>>>>>>>>>>>>1
 	nextThread = (Thread *)queue->Remove();
-	scheduler->ReadyToRun(nextThread);      // wake up the thread
+    //>>>>>>>>>>>>>>>>2
+    scheduler->ReadyToRun(nextThread);      // wake up the thread
     } 
     (void) interrupt->SetLevel(oldLevel);
 }
@@ -255,6 +263,7 @@ void Condition::Broadcast(Lock* conditionLock)
     ASSERT(conditionLock->isHeldByCurrentThread());
     if(!queue->IsEmpty()) {
 	ASSERT(lock == conditionLock);
+    int p;
 	while(nextThread = (Thread *)queue->Remove()) {
 	    scheduler->ReadyToRun(nextThread);  // wake up the thread
 	}

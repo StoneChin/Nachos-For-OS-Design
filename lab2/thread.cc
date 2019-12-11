@@ -24,6 +24,14 @@
 					// execution stack, for detecting 
 					// stack overflows
 
+    //>>>>>>>>>>>>>>>>>>>>
+// int threadIDComp(void *target, void *data)
+// {
+//     int threadId = ((Thread *)target)->getThreadID();
+//     return (threadId == (int)data);
+// }
+    //>>>>>>>>>>>>>>>>>>>>
+
 //----------------------------------------------------------------------
 // Thread::Thread
 // 	Initialize a thread control block, so that we can then call
@@ -32,8 +40,17 @@
 //	"threadName" is an arbitrary string, useful for debugging.
 //----------------------------------------------------------------------
 
-Thread::Thread(char* threadName)
+// Thread::Thread(char* threadName)
+//>>>>>>>>>>>>>>>>>>>>
+Thread::Thread(char* threadName,int p)
+//>>>>>>>>>>>>>>>>>>>>
 {
+    //>>>>>>>>>>>>>>>>>>>>
+    if(p<1) priority=1;
+    else if(p>6) priority=6;
+    else priority=p;
+    //>>>>>>>>>>>>>>>>>>>>
+
     name = threadName;
     stackTop = NULL;
     stack = NULL;
@@ -185,12 +202,16 @@ Thread::Yield ()
     ASSERT(this == currentThread);
     
     DEBUG('t', "Yielding thread \"%s\"\n", getName());
-    
-    nextThread = scheduler->FindNextToRun();
-    if (nextThread != NULL) {
+    //>>>>>>>>>>>>>>>>
 	scheduler->ReadyToRun(this);
+    nextThread = scheduler->FindNextToRun();
 	scheduler->Run(nextThread);
-    }
+    //>>>>>>>>>>>>>>>>
+    // nextThread = scheduler->FindNextToRun();
+    // if (nextThread != NULL) {
+	// scheduler->ReadyToRun(this);
+	// scheduler->Run(nextThread);
+    // }
     (void) interrupt->SetLevel(oldLevel);
 }
 

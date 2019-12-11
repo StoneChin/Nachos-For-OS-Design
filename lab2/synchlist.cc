@@ -54,7 +54,9 @@ void
 SynchList::Append(void *item)
 {
     lock->Acquire();		// enforce mutual exclusive access to the list 
+    //>>>>>>>>>>>>>>>>1
     list->Append(item);
+    //>>>>>>>>>>>>>>>>2
     listEmpty->Signal(lock);	// wake up a waiter, if any
     lock->Release();
 }

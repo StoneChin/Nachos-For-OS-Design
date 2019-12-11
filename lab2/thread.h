@@ -39,6 +39,9 @@
 
 #include "copyright.h"
 #include "utility.h"
+//>>>>>>>>>>>>>>>>>>>>
+#include "list.h"
+//>>>>>>>>>>>>>>>>>>>>
 
 #ifdef USER_PROGRAM
 #include "machine.h"
@@ -82,7 +85,11 @@ class Thread {
     _int machineState[MachineStateSize];  // all registers except for stackTop
 
   public:
-    Thread(char* debugName);		// initialize a Thread 
+    // Thread(char* debugName);		// initialize a Thread 
+    //>>>>>>>>>>>>>>>>>>>>
+    Thread(char* debugName,int priority=6);		//如果没有定义priority就授予最低权限
+                                              //优先级最高是1最小是6
+    //>>>>>>>>>>>>>>>>>>>>
     ~Thread(); 				// deallocate a Thread
 					// NOTE -- thread being deleted
 					// must not be running when delete 
@@ -100,12 +107,46 @@ class Thread {
     void CheckOverflow();   			// Check if thread has 
 						// overflowed its stack
     void setStatus(ThreadStatus st) { status = st; }
+    //>>>>>>>>>>>>>>>>>>>>
+      ThreadStatus getStatus() { return (status); }
+    //>>>>>>>>>>>>>>>>>>>>
+
     char* getName() { return (name); }
+    //>>>>>>>>>>>>>>>>>>>>
+      int getUserID() { return (userID);}
+      int getThreadID() {return (threadID);}
+      int getPriority() {return (priority);}
+      void setPriority(int prior) {priority = prior;}
+    //>>>>>>>>>>>>>>>>>>>>
+
+    //>>>>>>>>>>>>>>>>>>>>
+    int getExitStatus() { return (exitStatus);}
+    void setExitStatus(int status) {exitStatus = status;}
+    Thread *getParent() { return (parent); }
+    void setParent(Thread *thread) { parent = thread; }
+    void addChild(Thread *thread);
+    void childThreadExit(int threadId);
+    Thread *removeExitedChild(int threadId);
+    void cleanUpBeforeDestroy();
+    //>>>>>>>>>>>>>>>>>>>>
+
     void Print() { printf("%s, ", name); }
 
   private:
     // some of the private data for this class is listed above
-    
+    //>>>>>>>>>>>>>>>>>>>>
+      int threadID;
+      int userID;
+      int priority;     //优先级调度的标志
+    //>>>>>>>>>>>>>>>>>>>>
+
+    //>>>>>>>>>>>>>>>>>>>>
+    Thread* parent;     //Parent thread父线程
+    List *activeChild;  //活跃的子线程列表
+    List *exitedChild;  //存在的子线程列表
+    int exitStatus;     //现成的存在状态
+    //>>>>>>>>>>>>>>>>>>>>
+
     int* stack; 	 		// Bottom of the stack 
 					// NULL if this is the main thread
 					// (If NULL, don't deallocate stack)
@@ -142,6 +183,9 @@ void ThreadRoot();
 
 // Stop running oldThread and start running newThread
 void SWITCH(Thread *oldThread, Thread *newThread);
+    //>>>>>>>>>>>>>>>>>>>>
+int threadIDComp(void *target,void *data);
+    //>>>>>>>>>>>>>>>>>>>>
 }
 
 #endif // THREAD_H
