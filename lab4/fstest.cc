@@ -131,42 +131,40 @@ Append(char *from, char *to, int half)
     if (half) start = start / 2;
     openFile->Seek(start);
 
-    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    //check file size
-    if(!openFile->AppendSize(fileLength))
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    //ask for new space and check
+    if(!(openFile->AppendSize(fileLength)))
     {
         printf("The appending file is too big!\nAppending file failed\n");
         return;
     }
-    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     
-//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 // Append the data in TransferSize chunks
     buffer = new char[TransferSize];
     while ((amountRead = fread(buffer, sizeof(char), TransferSize, fp)) > 0) 
     {
         int result;
-	printf("start value: %d,  amountRead %d, ", start, amountRead); //
-	result = openFile->WriteAt(buffer, amountRead, start);          //
+//	printf("start value: %d,  amountRead %d, ", start, amountRead);
+//	result = openFile->WriteAt(buffer, amountRead, start);
 	result = openFile->Write(buffer, amountRead);
-	printf("result of write: %d\n", result);                        //
-	/// ASSERT(result == amountRead);
-	start += amountRead;                                            //
+//	printf("result of write: %d\n", result);
+	ASSERT(result == amountRead);
+//	start += amountRead;
 //	ASSERT(start == openFile->Length());
     }
     delete [] buffer;
 
 // Write the inode back to the disk, because we have changed it
-    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     openFile->WriteBack(to);
-    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    // printf("inodes have been written back\n");
+    printf("inodes have been written back\n");
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     
 // Close the UNIX and the Nachos files
     delete openFile;
     fclose(fp);
 }
-//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 //----------------------------------------------------------------------
 // NAppend
@@ -245,8 +243,10 @@ NAppend(char *from, char *to)
     delete [] buffer;
 
 // Write the inode back to the disk, because we have changed it
-    // openFileTo->WriteBack();
-    // printf("inodes have been written back\n");
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    openFileTo->WriteBack(to);
+    printf("inodes have been written back\n");
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     
 // Close both Nachos files
     delete openFileTo;
