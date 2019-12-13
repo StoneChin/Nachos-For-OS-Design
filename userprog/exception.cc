@@ -24,6 +24,13 @@
 #include "copyright.h"
 #include "system.h"
 #include "syscall.h"
+#include "copyright.h"
+#include "system.h"
+#include "syscall.h"
+
+//******************
+extern void StartProcess(char *file);
+//******************
 
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -47,6 +54,12 @@
 //	"which" is the kind of exception.  The list of possible exceptions 
 //	are in machine.h.
 //----------------------------------------------------------------------
+void 
+AdvancePC(){
+machine->WriteRegister(PrevPCReg,machine->ReadRegister(PCReg));
+machine->WriteRegister(PCReg, machine->ReadRegister(PCReg) + 4);
+machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg) + 4);
+}
 
 void
 ExceptionHandler(ExceptionType which)
@@ -56,7 +69,16 @@ ExceptionHandler(ExceptionType which)
     if ((which == SyscallException) && (type == SC_Halt)) {
 	DEBUG('a', "Shutdown, initiated by user program.\n");
    	interrupt->Halt();
-    } else {
+    }else if ((which == SyscallException) && (type==SC_Exec)){
+		int type2 = machine->ReadRegister(4);
+		char a[50] ;
+		int i=0;
+		do{
+		machine->ReadMem(type2+i,1,(int *)&a[i]);}
+		while(a[i++]!=0);
+		StartProcess(a);
+		AdvancePC();
+     }else {
 	printf("Unexpected user mode exception %d %d\n", which, type);
 	ASSERT(FALSE);
     }

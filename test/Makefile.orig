@@ -61,7 +61,7 @@ SFILES = start.s
 
 include ../Makefile.common
 
-INCDIR =-I../userprog -I../threads
+INCDIR =-I../lab7-8 -I../threads
 CFLAGS = -G 0 -c $(INCDIR)
 
 coff2noff = ../bin/$(real_bin_dir)/coff2noff
