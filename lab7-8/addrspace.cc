@@ -20,7 +20,10 @@
 #include "addrspace.h"
 #include "noff.h"
 #include "bitmap.h"
+#include "machine.h"
 
+
+    BitMap *bitmap = new BitMap(NumPhysPages);
 //----------------------------------------------------------------------
 // SwapHeader
 // 	Do little endian to big endian conversion on the bytes in the 
@@ -64,6 +67,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
     unsigned int i, size;
 
     executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
+
     if ((noffH.noffMagic != NOFFMAGIC) && 
 		(WordToHost(noffH.noffMagic) == NOFFMAGIC))
     	SwapHeader(&noffH);
@@ -72,7 +76,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
 // how big is address space?
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	int coden=divRoundUp(noffH.code.size, PageSize);//page number of code size
-	int datan=divRoundUp(noffH.initData. size,PageSize); //page number of data size
+	int datan=divRoundUp(noffH.initData.size, PageSize); //page number of data size
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     size = coden*PageSize + datan*PageSize + noffH.uninitData.size 
 			+ UserStackSize;	// we need to increase the size
@@ -89,17 +93,16 @@ AddrSpace::AddrSpace(OpenFile *executable)
 					numPages, size);
 // first, set up the translation 
     pageTable = new TranslationEntry[numPages];
-    BitMap *bitmap = new BitMap(NumPhysPages);
 
     for (i = 0; i < numPages; i++) {
-	pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
-	pageTable[i].physicalPage = bitmap->Find();//?????
-	pageTable[i].valid = TRUE;
-	pageTable[i].use = FALSE;
-	pageTable[i].dirty = FALSE;
-	pageTable[i].readOnly = FALSE;  // if the code segment was entirely on 
-					// a separate page, we could set its 
-					// pages to be read-only
+        pageTable[i].virtualPage = i;	// for now, virtual page # = phys page
+        pageTable[i].physicalPage = bitmap->Find();//?????
+        pageTable[i].valid = TRUE;
+        pageTable[i].use = FALSE;
+        pageTable[i].dirty = FALSE;
+        pageTable[i].readOnly = FALSE;  // if the code segment was entirely on 
+                        // a separate page, we could set its 
+                        // pages to be read-only
     }
     
 // zero out the entire address space, to zero the unitialized data segment 

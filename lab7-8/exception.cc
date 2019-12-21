@@ -56,7 +56,7 @@ extern void StartProcess(char *file);
 //----------------------------------------------------------------------
 void 
 AdvancePC(){
-machine->WriteRegister(PrevPCReg,machine->ReadRegister(PCReg));
+// machine->WriteRegister(PrevPCReg,machine->ReadRegister(PCReg));
 machine->WriteRegister(PCReg, machine->ReadRegister(PCReg) + 4);
 machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg) + 4);
 }
