@@ -115,7 +115,7 @@ Consumer(_int which)
     if ( (fd = creat(fname, 0600) ) == -1) 
     {
       perror("creat: file create failed");
-      Exit(1);
+      exit(1);
     }
     
     for (; ; ) {
@@ -140,7 +140,7 @@ Consumer(_int which)
       // note that this is another UNIX system call.
       if ( write(fd, str, strlen(str)) == -1 ) {
 	    perror("write: write failed");
-	    Exit(1);
+	    exit(1);
 	  }
     }
 }
@@ -161,9 +161,10 @@ ProdCons()
 
     // Put the code to construct all the semaphores here.
     // ....
+    nempty = new Semaphore("empty",BUFF_SIZE);  //nempty初始化
     mutex = new Semaphore("mutex",1); //mutex初始化
     nfull = new Semaphore("full",0);  //nfull初始化
-    nempty = new Semaphore("empty",BUFF_SIZE);  //nempty初始化
+
 
     // Put the code to construct a ring buffer object with size 
     //BUFF_SIZE here.

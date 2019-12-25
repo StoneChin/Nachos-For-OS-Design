@@ -301,8 +301,10 @@ FileHeader::Print()
         int dataSectors2[NumDirect2];
         synchDisk->ReadSector(dataSectors[lastIndex],(char *)dataSectors2);
         printf("FileHeader contents.  File size: %d.  File blocks:\n", numBytes);
+        printf("\nFirst Index :");
         for(i=0;i<lastIndex;i++)
-            printf("%d ",dataSectors[i]);
+            printf("%d \n",dataSectors[i]);
+        printf("\nSecondary Index :");
         for(;i<numSectors;i++)
             printf("%d ",dataSectors2[i-lastIndex]);
         printf("\nFile contents:\n");

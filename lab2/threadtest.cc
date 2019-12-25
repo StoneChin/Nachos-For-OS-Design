@@ -27,7 +27,7 @@ SimpleThread(_int which)
     int num;
     
     for (num = 0; num < 5; num++) {
-	printf("*** thread %d looped %d times\n", (int) which, num);
+	printf("*** thread %d looped %d times  priority: %d\n", (int) which, num,currentThread->getPriority());
         currentThread->Yield();
     }
 }
